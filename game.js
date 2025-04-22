@@ -4,30 +4,57 @@ const context = canvas.getContext('2d');
 const grid = 48;
 const gridGap = 10;
 
+// Load images
+const images = {
+  frog: new Image(),
+  car: new Image(),
+  truck: new Image(),
+  turtle: new Image(),
+  log: new Image()
+};
+
+// Set image sources
+images.frog.src = 'images/frog.png';
+images.car.src = 'images/car.png';
+images.truck.src = 'images/truck.png';
+images.turtle.src = 'images/turtle.png';
+images.log.src = 'images/log.png';
+
+// Add error handling for images
+Object.values(images).forEach(img => {
+  img.onerror = function() {
+    console.log('Failed to load image:', img.src);
+  };
+});
+
 // a simple sprite prototype function
 function Sprite(props) {
   // shortcut for assigning all object properties to the sprite
   Object.assign(this, props);
 }
 Sprite.prototype.render = function() {
-  context.fillStyle = this.color;
-
-  // draw a rectangle sprite
-  if (this.shape === 'rect') {
-    // by using a size less than the grid we can ensure there is a visual space
-    // between each row
-    context.fillRect(this.x, this.y + gridGap / 2, this.size, grid - gridGap);
-  }
-  // draw a circle sprite. since size is the diameter we need to divide by 2
-  // to get the radius. also the x/y position needs to be centered instead of
-  // the top-left corner of the sprite
-  else {
-    context.beginPath();
-    context.arc(
-      this.x + this.size / 2, this.y + this.size / 2,
-      this.size / 2 - gridGap / 2, 0, 2 * Math.PI
+  if (this.image && this.image.complete) {
+    // Draw the image sprite
+    context.drawImage(
+      this.image,
+      this.x,
+      this.y + gridGap / 2,
+      this.size,
+      grid - gridGap
     );
-    context.fill();
+  } else {
+    // Fallback to colored shapes if images aren't loaded
+    context.fillStyle = this.color;
+    if (this.shape === 'rect') {
+      context.fillRect(this.x, this.y + gridGap / 2, this.size, grid - gridGap);
+    } else {
+      context.beginPath();
+      context.arc(
+        this.x + this.size / 2, this.y + this.size / 2,
+        this.size / 2 - gridGap / 2, 0, 2 * Math.PI
+      );
+      context.fill();
+    }
   }
 }
 
@@ -36,7 +63,8 @@ const frogger = new Sprite({
   y: grid * 13,
   color: 'greenyellow',
   size: grid,
-  shape: 'circle'
+  shape: 'circle',
+  image: images.frog
 });
 const scoredFroggers = [];
 
@@ -51,7 +79,8 @@ const patterns = [
     color: '#c55843',  // color of the obstacle
     size: grid * 4,    // width (rect) / diameter (circle) of the obstacle
     shape: 'rect',     // shape of the obstacle (rect or circle)
-    speed: 0.75        // how fast the obstacle moves and which direction
+    speed: 0.75,        // how fast the obstacle moves and which direction
+    image: images.log
   },
 
   // turtle
@@ -60,7 +89,8 @@ const patterns = [
     color: '#de0004',
     size: grid,
     shape: 'circle',
-    speed: -1
+    speed: -1,
+    image: images.turtle
   },
 
   // long log
@@ -69,7 +99,8 @@ const patterns = [
     color: '#c55843',
     size: grid * 7,
     shape: 'rect',
-    speed: 1.5
+    speed: 1.5,
+    image: images.log
   },
 
   // log
@@ -78,7 +109,8 @@ const patterns = [
     color: '#c55843',
     size: grid * 3,
     shape: 'rect',
-    speed: 0.5
+    speed: 0.5,
+    image: images.log
   },
 
   // turtle
@@ -87,7 +119,8 @@ const patterns = [
     color: '#de0004',
     size: grid,
     shape: 'circle',
-    speed: -1
+    speed: -1,
+    image: images.turtle
   },
 
   // beach is safe
@@ -99,7 +132,8 @@ const patterns = [
     color: '#c2c4da',
     size: grid * 2,
     shape: 'rect',
-    speed: -1
+    speed: -1,
+    image: images.truck
   },
 
   // fast car
@@ -108,7 +142,8 @@ const patterns = [
     color: '#c2c4da',
     size: grid,
     shape: 'rect',
-    speed: 0.75
+    speed: 0.75,
+    image: images.car
   },
 
   // car
@@ -117,7 +152,8 @@ const patterns = [
     color: '#de3cdd',
     size: grid,
     shape: 'rect',
-    speed: -0.75
+    speed: -0.75,
+    image: images.car
   },
 
   // bulldozer
@@ -126,7 +162,8 @@ const patterns = [
     color: '#0bcb00',
     size: grid,
     shape: 'rect',
-    speed: 0.5
+    speed: 0.5,
+    image: images.truck
   },
 
   // car
@@ -135,7 +172,8 @@ const patterns = [
     color: '#e5e401',
     size: grid,
     shape: 'rect',
-    speed: -0.5
+    speed: -0.5,
+    image: images.car
   },
 
   // start zone is safe
